@@ -2,13 +2,17 @@ import React from 'react';
 import { View, Text, Image, StyleSheet, TouchableOpacity, ScrollView, Dimensions } from 'react-native';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import Icon from 'react-native-vector-icons/MaterialIcons';
+import { useDispatch } from 'react-redux';
+import { addItemToCart } from '../store/cartSlice';
 
 const ProductDetailScreen = () => {
   const navigation = useNavigation();
   const route = useRoute();
   const { product } = route.params;
+  const dispatch = useDispatch();
 
   const handleAddToCart = () => {
+    dispatch(addItemToCart(product));
     alert('Product added to cart!');
   };
 
@@ -30,11 +34,11 @@ const ProductDetailScreen = () => {
       </View>
       <View style={styles.buttonRow}>
         <TouchableOpacity style={styles.backButton} onPress={() => navigation.goBack()}>
-        <Icon name="arrow-back" size={24} color="white" />
-            <Text style={styles.backButtonText}>Back</Text>
+          <Icon name="arrow-back" size={24} color="white" />
+          <Text style={styles.backButtonText}>Back</Text>
         </TouchableOpacity>
         <TouchableOpacity style={styles.addToCartButton} onPress={handleAddToCart}>
-        <Icon name="add-shopping-cart" size={24} color="white" />
+          <Icon name="add-shopping-cart" size={24} color="white" />
           <Text style={styles.addToCartText}>Add to Cart</Text>
         </TouchableOpacity>
       </View>
