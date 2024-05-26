@@ -1,28 +1,38 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { View, Text, FlatList, ActivityIndicator, StyleSheet, Image, Dimensions, TouchableOpacity } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import Icon from 'react-native-vector-icons/MaterialIcons';
+import axios from 'axios';
 
 const { width } = Dimensions.get('window');
 
 const ProductListScreen = ({ route, navigation }) => {
   const { category } = route.params;
-  const [products, setProducts] = React.useState([]);
-  const [loading, setLoading] = React.useState(true);
+  const [products, setProducts] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [cachedProducts, setCachedProducts] = useState({});
   const nav = useNavigation();
 
-  React.useEffect(() => {
-    fetch(`https://fakestoreapi.com/products/category/${category}`)
-      .then(response => response.json())
-      .then(data => {
-        setProducts(data);
+  useEffect(() => {
+    const fetchProducts = async () => {
+      if (cachedProducts[category]) {
+        setProducts(cachedProducts[category]);
         setLoading(false);
-      })
-      .catch(error => {
-        console.error('Error fetching products:', error);
-        setLoading(false);
-      });
-  }, [category]);
+      } else {
+        try {
+          const response = await axios.get(`https://fakestoreapi.com/products/category/${category}`);
+          const data = response.data;
+          setProducts(data);
+          setCachedProducts(prevState => ({ ...prevState, [category]: data }));
+          setLoading(false);
+        } catch (error) {
+          console.error('Error fetching products:', error);
+          setLoading(false);
+        }
+      }
+    };
+    fetchProducts();
+  }, [category, cachedProducts]);
 
   const handleProductPress = (product) => {
     nav.navigate('ProductDetail', { product });
@@ -40,6 +50,7 @@ const ProductListScreen = ({ route, navigation }) => {
 
   return (
     <View style={styles.container}>
+      <Text style={styles.title}>{category.toUpperCase()}</Text>
       {loading ? (
         <ActivityIndicator size="large" color="#0000ff" />
       ) : (
@@ -65,6 +76,12 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
+    padding: 20,
+  },
+  title: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    marginBottom: 20,
   },
   productList: {
     flexGrow: 1,
@@ -79,7 +96,7 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: '#ccc',
     borderRadius: 5,
-    width: width - 20,
+    width: width - 40,
   },
   productImage: {
     width: 80,
@@ -107,8 +124,8 @@ const styles = StyleSheet.create({
     paddingVertical: 10,
     paddingHorizontal: 20,
     borderRadius: 10,
-    marginBottom: 10,
     marginTop: 10,
+    marginBottom: 20,
   },
   backButtonText: {
     color: '#fff',

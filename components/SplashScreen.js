@@ -5,16 +5,13 @@ const SplashScreen = ({ navigation }) => {
   const fadeAnim = useRef(new Animated.Value(0)).current;
 
   useEffect(() => {
-    Animated.timing(
-      fadeAnim,
-      {
-        toValue: 1,
-        duration: 1000,
-        useNativeDriver: true,
-      }
-    ).start(() => {
+    Animated.timing(fadeAnim, {
+      toValue: 1,
+      duration: 1000,
+      useNativeDriver: true,
+    }).start(() => {
       setTimeout(() => {
-        navigation.replace('Categories');
+        navigation.replace('SignIn');
       }, 1000);
     });
   }, [fadeAnim, navigation]);
